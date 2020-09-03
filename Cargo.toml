@@ -1,0 +1,17 @@
+# Copyright (C) 2020 Casper Meijn <casper@meijn.net>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+[package]
+name = "watchface"
+version = "0.1.0"
+authors = ["Casper Meijn <casper@meijn.net>"]
+edition = "2018"
+
+[dependencies]
+embedded-graphics = "0.6.2"
+heapless = "0.5.5"
+chrono = "0.4.11"
+
+[dev-dependencies]
+embedded-graphics-simulator = "0.2.0"
