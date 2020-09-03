@@ -7,6 +7,10 @@ name = "watchface"
 version = "0.1.0"
 authors = ["Casper Meijn <casper@meijn.net>"]
 edition = "2018"
+description = "A smartwatch watchface implementation"
+repository = "https://gitlab.com/caspermeijn/rust-watchface"
+license = "GPL-3.0-or-later"
+keywords = ["embedded-graphics", "watchface", "smartwatch"]
 
 [dependencies]
 embedded-graphics = "0.6.2"
