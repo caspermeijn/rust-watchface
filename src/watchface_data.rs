@@ -57,7 +57,6 @@ pub struct WatchfaceBuilder {
 }
 
 impl WatchfaceBuilder {
-
     /// Add a time to the watchface data
     pub fn with_time<T: Into<Time>>(mut self, time: T) -> Self {
         self.watchface.time = Some(time.into());

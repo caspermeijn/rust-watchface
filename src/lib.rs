@@ -42,7 +42,7 @@
 //!      .into_styled(style);
 //!
 //! let mut display = MockDisplay::<Rgb888>::new();
-//! styled_watchface.draw(&mut display)?;
+//! styled_watchface.draw(&mut display);
 //! ```
 
 mod simple_watchface;
