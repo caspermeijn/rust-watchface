@@ -20,9 +20,9 @@
 mod simple_watchface;
 mod styled;
 mod time;
-mod watchface;
+mod watchface_data;
 
 pub use simple_watchface::SimpleWatchfaceStyle;
 pub use time::Time;
-pub use watchface::Watchface;
-pub use watchface::WatchfaceBuilder;
+pub use watchface_data::Watchface;
+pub use watchface_data::WatchfaceBuilder;

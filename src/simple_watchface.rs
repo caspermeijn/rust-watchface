@@ -16,7 +16,7 @@
  */
 
 use crate::styled::Styled;
-use crate::watchface::Watchface;
+use crate::watchface_data::Watchface;
 use core::fmt::Write;
 use embedded_graphics::fonts::{Font24x32, Text};
 use embedded_graphics::prelude::*;
