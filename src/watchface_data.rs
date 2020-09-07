@@ -19,37 +19,77 @@ use crate::simple_watchface::SimpleWatchfaceStyle;
 use crate::styled::Styled;
 use crate::time::Time;
 
+/// Representation of watchface data
 #[derive(Default)]
 pub struct Watchface {
     pub time: Option<Time>,
 }
 
 impl Watchface {
+    /// Returns a watchface builder
     pub fn build() -> WatchfaceBuilder {
         WatchfaceBuilder::default()
     }
 
+    /// Convert to a styled watchface
     pub fn into_styled(self, style: SimpleWatchfaceStyle) -> Styled<Self, SimpleWatchfaceStyle> {
         Styled::new(self, style)
     }
 }
 
+/// Builder for creating watchface data
+///
+/// # Examples
+///
+/// ```
+/// use watchface::Time;
+/// use watchface::Watchface;
+///
+/// let watchface = Watchface::build()
+///      .with_time(Time::from_unix_epoch(1599160982, 0))
+///      .finish();
+///
+/// assert_eq!(watchface.time, Some(Time::from_unix_epoch(1599160982, 0)));
+/// ```
 #[derive(Default)]
 pub struct WatchfaceBuilder {
     watchface: Watchface,
 }
 
 impl WatchfaceBuilder {
+
+    /// Add a time to the watchface data
     pub fn with_time<T: Into<Time>>(mut self, time: T) -> Self {
         self.watchface.time = Some(time.into());
 
         self
     }
 
+    /// Convert the builder to a watchface
     pub fn finish(self) -> Watchface {
         self.watchface
     }
 
+    /// Convert the builder to a styled watchface
+    ///
+    /// # Examples
+    /// ```
+    /// use chrono::Local;
+    /// use embedded_graphics::drawable::Drawable;
+    /// use embedded_graphics::mock_display::MockDisplay;
+    /// use embedded_graphics::pixelcolor::Rgb888;
+    /// use watchface::SimpleWatchfaceStyle;
+    /// use watchface::Watchface;
+    ///
+    /// let style = SimpleWatchfaceStyle::default();
+    ///
+    /// let watchface = Watchface::build()
+    ///      .with_time(Local::now())
+    ///      .into_styled(style);
+    ///
+    /// let mut display = MockDisplay::<Rgb888>::new();
+    /// watchface.draw(&mut display);
+    /// ```
     pub fn into_styled(
         self,
         style: SimpleWatchfaceStyle,

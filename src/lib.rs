@@ -17,6 +17,34 @@
 
 #![no_std]
 
+//! A smartwatch watchface implementation
+//!
+//! This crate provides the `Watchface` struct which can contain watchface data. Then it provides
+//! the `SimpleWatchfaceStyle` for drawing this data to a `embedded_graphics::DrawTarget`.
+//!
+//! # Current state
+//! The current version of this crate is only able to draw the time and the style is ugly.
+//!
+//! # Examples
+//!
+//! ```
+//! use chrono::Local;
+//! use embedded_graphics::drawable::Drawable;
+//! use embedded_graphics::mock_display::MockDisplay;
+//! use embedded_graphics::pixelcolor::Rgb888;
+//! use watchface::SimpleWatchfaceStyle;
+//! use watchface::Watchface;
+//!
+//! let style = SimpleWatchfaceStyle::default();
+//!
+//! let styled_watchface = Watchface::build()
+//!      .with_time(Local::now())
+//!      .into_styled(style);
+//!
+//! let mut display = MockDisplay::<Rgb888>::new();
+//! styled_watchface.draw(&mut display)?;
+//! ```
+
 mod simple_watchface;
 mod styled;
 mod time;

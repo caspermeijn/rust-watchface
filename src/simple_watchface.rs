@@ -25,6 +25,30 @@ use embedded_graphics::DrawTarget;
 use heapless::consts::*;
 use heapless::String;
 
+/// Simple watchface style
+///
+/// This implements a simple watchface style, all watchface data will just be drawn as text on the
+/// screen.
+///
+/// # Examples
+///
+/// ```
+/// use chrono::Local;
+/// use embedded_graphics::drawable::Drawable;
+/// use embedded_graphics::mock_display::MockDisplay;
+/// use embedded_graphics::pixelcolor::Rgb888;
+/// use watchface::SimpleWatchfaceStyle;
+/// use watchface::Watchface;
+///
+/// let style = SimpleWatchfaceStyle::default();
+///
+/// let styled_watchface = Watchface::build()
+///      .with_time(Local::now())
+///      .into_styled(style);
+///
+/// let mut display = MockDisplay::<Rgb888>::new();
+/// styled_watchface.draw(&mut display)?;
+/// ```
 #[derive(Default)]
 pub struct SimpleWatchfaceStyle {}
 
