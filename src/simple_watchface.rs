@@ -47,7 +47,7 @@ use heapless::String;
 ///      .into_styled(style);
 ///
 /// let mut display = MockDisplay::<Rgb888>::new();
-/// styled_watchface.draw(&mut display)?;
+/// styled_watchface.draw(&mut display);
 /// ```
 #[derive(Default)]
 pub struct SimpleWatchfaceStyle {}

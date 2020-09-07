@@ -1,0 +1,71 @@
+# Copyright (C) 2020 Casper Meijn <casper@meijn.net>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+stages:
+  - version
+  - build
+  - release
+
+version:
+  stage: version
+  image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.21.1
+  script:
+    - release next-version --allow-current > .next-version
+    - echo Next version is $(<.next-version)
+  artifacts:
+    paths:
+      - .next-version
+
+build-rust-latest:
+  stage: build
+  image: rust:latest
+  before_script:
+    - apt update && apt install -y libsdl2-dev
+    - rustup component add rustfmt
+  script:
+    - cargo build --verbose
+    - cargo test --verbose
+    - cargo publish --dry-run --verbose
+    - cargo fmt -- --check
+    - cargo test version_number -- --ignored
+
+reuse:
+  stage: build
+  image:
+    name: fsfe/reuse:latest
+    entrypoint: [""]
+  script:
+    - reuse lint
+  needs: []
+
+conventional-commits:
+  stage: build
+  image:
+    name: rust
+  before_script:
+    - cargo install convco
+  script:
+    - git fetch origin
+    - convco check origin/master..HEAD
+  needs: []
+
+release:
+  stage: release
+  image: registry.gitlab.com/juhani/go-semrel-gitlab:v0.21.1
+  script:
+    - release -v
+    - release tag
+  when: manual
+  only:
+    - master
+
+deploy:
+  stage: release
+  image: rust
+  before_script:
+    - cargo login ${CARGO_REGISTRY_TOKEN}
+  script:
+    - cargo publish
+  only:
+    - tags
