@@ -48,7 +48,9 @@
 mod simple_watchface;
 mod styled;
 mod time;
+pub mod time;
 mod watchface_data;
+pub mod battery;
 
 pub use simple_watchface::SimpleWatchfaceStyle;
 pub use time::Time;
