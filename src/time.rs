@@ -37,7 +37,7 @@ impl Time {
     ///
     /// # Examples
     /// ```
-    /// use watchface::Time;
+    /// use watchface::time::Time;
     /// // GMT+02:00
     /// let timezone_offset = 2 * 60 * 60;
     /// // 2020-09-03T19:23:02

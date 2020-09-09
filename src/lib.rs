@@ -44,13 +44,20 @@
 //! let mut display = MockDisplay::<Rgb888>::new();
 //! styled_watchface.draw(&mut display);
 //! ```
+//!
+//! # Simulator
+//!
+//! A simulator is available for testing a watchface on a desktop. Run the example using:
+//! ```bash
+//! cargo run --example simulator
+//! ```
 
+pub mod battery;
 mod simple_watchface;
 mod styled;
-mod time;
+pub mod time;
 mod watchface_data;
 
 pub use simple_watchface::SimpleWatchfaceStyle;
-pub use time::Time;
 pub use watchface_data::Watchface;
 pub use watchface_data::WatchfaceBuilder;

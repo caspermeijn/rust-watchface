@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::battery::ChargerState;
+use crate::battery::StateOfCharge;
 use crate::simple_watchface::SimpleWatchfaceStyle;
 use crate::styled::Styled;
 use crate::time::Time;
@@ -23,6 +25,8 @@ use crate::time::Time;
 #[derive(Default)]
 pub struct Watchface {
     pub time: Option<Time>,
+    pub charger: Option<ChargerState>,
+    pub battery: Option<StateOfCharge>,
 }
 
 impl Watchface {
@@ -42,11 +46,15 @@ impl Watchface {
 /// # Examples
 ///
 /// ```
-/// use watchface::Time;
+/// use watchface::battery::ChargerState;
+/// use watchface::battery::StateOfCharge;
+/// use watchface::time::Time;
 /// use watchface::Watchface;
 ///
 /// let watchface = Watchface::build()
 ///      .with_time(Time::from_unix_epoch(1599160982, 0))
+///      .with_battery(StateOfCharge::from_percentage(50))
+///      .with_charger(ChargerState::Discharging)
 ///      .finish();
 ///
 /// assert_eq!(watchface.time, Some(Time::from_unix_epoch(1599160982, 0)));
@@ -60,6 +68,20 @@ impl WatchfaceBuilder {
     /// Add a time to the watchface data
     pub fn with_time<T: Into<Time>>(mut self, time: T) -> Self {
         self.watchface.time = Some(time.into());
+
+        self
+    }
+
+    /// Add a charger state to the watchface data
+    pub fn with_charger<T: Into<ChargerState>>(mut self, charger: T) -> Self {
+        self.watchface.charger = Some(charger.into());
+
+        self
+    }
+
+    /// Add a battery state of charge to the watchface data
+    pub fn with_battery<T: Into<StateOfCharge>>(mut self, battery: T) -> Self {
+        self.watchface.battery = Some(battery.into());
 
         self
     }
