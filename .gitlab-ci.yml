@@ -41,13 +41,9 @@ reuse:
 
 conventional-commits:
   stage: build
-  image:
-    name: rust
-  before_script:
-    - cargo install convco
+  image: registry.gitlab.com/caspermeijn/docker-images/convco:latest
   script:
-    - git fetch origin
-    - convco check origin/master..HEAD
+    - convco check
   needs: []
 
 release:
