@@ -52,11 +52,11 @@
 //! cargo run --example simulator
 //! ```
 
+pub mod battery;
 mod simple_watchface;
 mod styled;
 pub mod time;
 mod watchface_data;
-pub mod battery;
 
 pub use simple_watchface::SimpleWatchfaceStyle;
 pub use watchface_data::Watchface;

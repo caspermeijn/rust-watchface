@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::battery::StateOfCharge;
 use crate::battery::ChargerState;
+use crate::battery::StateOfCharge;
 use crate::simple_watchface::SimpleWatchfaceStyle;
 use crate::styled::Styled;
 use crate::time::Time;

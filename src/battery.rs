@@ -32,7 +32,7 @@ pub struct StateOfCharge {
 
 impl StateOfCharge {
     /// Create an instance from a percentage (0..100)
-    pub fn from_percentage(percentage: u8) -> Self{
+    pub fn from_percentage(percentage: u8) -> Self {
         assert!(percentage <= 100);
         let percentage = percentage as u32;
         let level = percentage * 255 / 100;
@@ -41,9 +41,7 @@ impl StateOfCharge {
 
     /// Create an instance from a level (0..255)
     pub fn from_level(level: u8) -> Self {
-        Self {
-            level,
-        }
+        Self { level }
     }
 
     /// Get the level (0..255)
@@ -58,4 +56,3 @@ impl StateOfCharge {
         percentage as u8
     }
 }
-

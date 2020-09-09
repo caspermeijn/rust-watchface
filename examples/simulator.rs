@@ -23,8 +23,8 @@ use embedded_graphics_simulator::{
 use chrono::{Local, Timelike};
 use std::thread;
 use std::time::Duration;
-use watchface::{SimpleWatchfaceStyle, Watchface};
 use watchface::battery::{ChargerState, StateOfCharge};
+use watchface::{SimpleWatchfaceStyle, Watchface};
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb565> = SimulatorDisplay::new(Size::new(240, 240));
@@ -41,7 +41,6 @@ fn main() -> Result<(), core::convert::Infallible> {
         } else {
             (100, ChargerState::Full)
         };
-
 
         let style = SimpleWatchfaceStyle::default();
 

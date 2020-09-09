@@ -19,7 +19,7 @@ use crate::battery::ChargerState;
 use crate::styled::Styled;
 use crate::watchface_data::Watchface;
 use core::fmt::Write;
-use embedded_graphics::fonts::{Font24x32, Text, Font8x16};
+use embedded_graphics::fonts::{Font24x32, Font8x16, Text};
 use embedded_graphics::prelude::*;
 use embedded_graphics::style::TextStyleBuilder;
 use embedded_graphics::DrawTarget;
@@ -62,7 +62,6 @@ where
     C: RgbColor,
 {
     fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
-
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
@@ -93,12 +92,7 @@ where
                 .build();
 
             let mut text = String::<U12>::new();
-            write!(
-                &mut text,
-                "batt: {:02}%",
-                battery.percentage()
-            )
-                .unwrap();
+            write!(&mut text, "batt: {:02}%", battery.percentage()).unwrap();
 
             Text::new(&text, Point::new(150, 10))
                 .into_styled(time_text_style)
@@ -107,9 +101,9 @@ where
 
         if let Some(charger) = &self.watchface.charger {
             let text = match charger {
-                ChargerState::Discharging => { "" },
-                ChargerState::Charging => { "Charging" },
-                ChargerState::Full => { "Full" },
+                ChargerState::Discharging => "",
+                ChargerState::Charging => "Charging",
+                ChargerState::Full => "Full",
             };
             if text.len() > 0 {
                 let time_text_style = TextStyleBuilder::new(Font8x16)
