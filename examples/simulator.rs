@@ -20,10 +20,11 @@ use embedded_graphics_simulator::{
     OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
 };
 
-use chrono::Local;
+use chrono::{Local, Timelike};
 use std::thread;
 use std::time::Duration;
 use watchface::{SimpleWatchfaceStyle, Watchface};
+use watchface::battery::{ChargerState, StateOfCharge};
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb565> = SimulatorDisplay::new(Size::new(240, 240));
@@ -32,10 +33,22 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut window = Window::new("Watchface", &output_settings);
 
     'running: loop {
+        let seconds = Local::now().second() as u8;
+        let (battery_percentage, charger_state) = if seconds < 30 {
+            (100 - (seconds * 3), ChargerState::Discharging)
+        } else if seconds < 55 {
+            (100 - (55 - seconds) * 3, ChargerState::Charging)
+        } else {
+            (100, ChargerState::Full)
+        };
+
+
         let style = SimpleWatchfaceStyle::default();
 
         let watchface = Watchface::build()
             .with_time(Local::now())
+            .with_battery(StateOfCharge::from_percentage(battery_percentage))
+            .with_charger(charger_state)
             .into_styled(style);
 
         watchface.draw(&mut display)?;
