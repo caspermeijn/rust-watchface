@@ -16,6 +16,7 @@
  */
 
 /// Indicated the state of the charger of a battery
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum ChargerState {
     /// No power source is connected, therefore the battery is discharging
     Discharging,
@@ -26,6 +27,7 @@ pub enum ChargerState {
 }
 
 /// Indicates a level of charge of a battery
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct StateOfCharge {
     level: u8,
 }
