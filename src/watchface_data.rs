@@ -17,7 +17,6 @@
 
 use crate::battery::ChargerState;
 use crate::battery::StateOfCharge;
-use crate::simple_watchface::SimpleWatchfaceStyle;
 use crate::styled::Styled;
 use crate::time::Time;
 
@@ -36,7 +35,7 @@ impl Watchface {
     }
 
     /// Convert to a styled watchface
-    pub fn into_styled(self, style: SimpleWatchfaceStyle) -> Styled<Self, SimpleWatchfaceStyle> {
+    pub fn into_styled<T>(self, style: T) -> Styled<Watchface, T> {
         Styled::new(self, style)
     }
 }
@@ -111,10 +110,7 @@ impl WatchfaceBuilder {
     /// let mut display = MockDisplay::<Rgb888>::new();
     /// watchface.draw(&mut display);
     /// ```
-    pub fn into_styled(
-        self,
-        style: SimpleWatchfaceStyle,
-    ) -> Styled<Watchface, SimpleWatchfaceStyle> {
+    pub fn into_styled<T>(self, style: T) -> Styled<Watchface, T> {
         self.watchface.into_styled(style)
     }
 }

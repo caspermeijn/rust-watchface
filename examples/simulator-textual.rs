@@ -24,13 +24,13 @@ use chrono::{Local, Timelike};
 use std::thread;
 use std::time::Duration;
 use watchface::battery::{ChargerState, StateOfCharge};
-use watchface::{SimpleWatchfaceStyle, Watchface};
+use watchface::{TextualTimeWatchfaceStyle, Watchface};
 
 fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<Rgb565> = SimulatorDisplay::new(Size::new(240, 240));
 
     let output_settings = OutputSettingsBuilder::new().build();
-    let mut window = Window::new("Simple Watchface", &output_settings);
+    let mut window = Window::new("Textual Watchface", &output_settings);
 
     'running: loop {
         let seconds = Local::now().second() as u8;
@@ -42,7 +42,7 @@ fn main() -> Result<(), core::convert::Infallible> {
             (100, ChargerState::Full)
         };
 
-        let style = SimpleWatchfaceStyle::default();
+        let style = TextualTimeWatchfaceStyle::default();
 
         let watchface = Watchface::build()
             .with_time(Local::now())

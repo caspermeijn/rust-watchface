@@ -55,9 +55,11 @@
 pub mod battery;
 mod simple_watchface;
 mod styled;
+mod textual_time_watchface;
 pub mod time;
 mod watchface_data;
 
 pub use simple_watchface::SimpleWatchfaceStyle;
+pub use textual_time_watchface::TextualTimeWatchfaceStyle;
 pub use watchface_data::Watchface;
 pub use watchface_data::WatchfaceBuilder;

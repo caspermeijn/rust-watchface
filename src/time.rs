@@ -21,7 +21,7 @@ use chrono::prelude::*;
 ///
 /// This is a simplified representation of time, so that it can also be used in applications without
 /// a full operating system or without chrono dependency.
-#[derive(Default, Eq, PartialEq, Debug)]
+#[derive(Default, Eq, PartialEq, Debug, Clone, Copy)]
 pub struct Time {
     hours_local: u8,
     minutes_local: u8,
@@ -68,6 +68,48 @@ impl Time {
     /// Get seconds in local timezone
     pub fn seconds_local(&self) -> u8 {
         self.seconds_local
+    }
+
+    /// Round a time to its closest quarter
+    ///
+    /// # Examples
+    /// ```
+    /// use watchface::time::Time;
+    ///
+    /// // 2020-10-18T03:55:23
+    /// let time = Time::from_unix_epoch(1602993323, 0);
+    /// let rounded = time.round_to_quarters();
+    /// assert_eq!(rounded.hours_local(), 4);
+    /// assert_eq!(rounded.minutes_local(), 0);
+    /// assert_eq!(rounded.seconds_local(), 0);
+    ///
+    /// // 2020-10-18T12:03:41
+    /// let time = Time::from_unix_epoch(1603022621, 0);
+    /// let rounded = time.round_to_quarters();
+    /// assert_eq!(rounded.hours_local(), 12);
+    /// assert_eq!(rounded.minutes_local(), 0);
+    /// assert_eq!(rounded.seconds_local(), 0);
+    /// ```
+    pub fn round_to_quarters(self) -> Time {
+        let mut hours = self.hours_local;
+        let mut minutes = self.minutes_local;
+        if minutes <= 7 {
+            minutes = 0;
+        } else if minutes > 7 && minutes <= 22 {
+            minutes = 15;
+        } else if minutes > 22 && minutes <= 37 {
+            minutes = 30;
+        } else if minutes > 37 && minutes <= 52 {
+            minutes = 45;
+        } else {
+            hours += 1;
+            minutes = 0;
+        }
+        Self {
+            hours_local: hours,
+            minutes_local: minutes,
+            seconds_local: 0,
+        }
     }
 }
 
