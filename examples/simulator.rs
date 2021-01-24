@@ -34,10 +34,12 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     'running: loop {
         let seconds = Local::now().second() as u8;
-        let (battery_percentage, charger_state) = if seconds < 30 {
-            (100 - (seconds * 3), ChargerState::Discharging)
+        let (battery_percentage, charger_state) = if seconds < 25 {
+            (100 - (seconds * 4), ChargerState::Discharging)
+        } else if seconds < 30 {
+            (0, ChargerState::Discharging)
         } else if seconds < 55 {
-            (100 - (55 - seconds) * 3, ChargerState::Charging)
+            (100 - (55 - seconds) * 4, ChargerState::Charging)
         } else {
             (100, ChargerState::Full)
         };

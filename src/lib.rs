@@ -53,6 +53,7 @@
 //! ```
 
 pub mod battery;
+pub mod battery_icon;
 mod simple_watchface;
 mod styled;
 mod textual_time_watchface;

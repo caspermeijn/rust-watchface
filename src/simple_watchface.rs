@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::battery::ChargerState;
+use crate::battery_icon::BatteryIconBuilder;
 use crate::styled::Styled;
 use crate::watchface_data::Watchface;
 use core::fmt::Write;
-use embedded_graphics::fonts::{Font24x32, Font8x16, Text};
+use embedded_graphics::fonts::{Font24x32, Text};
 use embedded_graphics::prelude::*;
 use embedded_graphics::style::TextStyleBuilder;
 use embedded_graphics::DrawTarget;
@@ -86,33 +86,11 @@ where
         }
 
         if let Some(battery) = &self.watchface.battery {
-            let time_text_style = TextStyleBuilder::new(Font8x16)
-                .text_color(C::WHITE)
-                .background_color(C::BLACK)
-                .build();
-
-            let mut text = String::<U12>::new();
-            write!(&mut text, "batt: {:02}%", battery.percentage()).unwrap();
-
-            Text::new(&text, Point::new(150, 10))
-                .into_styled(time_text_style)
-                .draw(display)?;
-        }
-
-        if let Some(charger) = &self.watchface.charger {
-            let text = match charger {
-                ChargerState::Discharging => "",
-                ChargerState::Charging => "Charging",
-                ChargerState::Full => "Full",
-            };
-            if text.len() > 0 {
-                let time_text_style = TextStyleBuilder::new(Font8x16)
-                    .text_color(C::WHITE)
-                    .background_color(C::BLACK)
-                    .build();
-
-                Text::new(&text, Point::new(150, 30))
-                    .into_styled(time_text_style)
+            if let Some(charger) = &self.watchface.charger {
+                BatteryIconBuilder::new(Point::new(10, 10))
+                    .with_charger(*charger)
+                    .with_state_of_charge(*battery)
+                    .build()
                     .draw(display)?;
             }
         }
