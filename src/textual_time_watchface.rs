@@ -17,47 +17,74 @@
 
 use crate::battery::ChargerState;
 use crate::styled::Styled;
-use crate::watchface_data::Watchface;
+use crate::time::Time;
+use crate::Watchface;
 use core::fmt::Write;
 use embedded_graphics::fonts::{Font24x32, Font8x16, Text};
 use embedded_graphics::prelude::*;
 use embedded_graphics::style::TextStyleBuilder;
-use embedded_graphics::DrawTarget;
 use heapless::consts::*;
 use heapless::String;
 
-/// Simple watchface style
-///
-/// This implements a simple watchface style, all watchface data will just be drawn as text on the
-/// screen.
-///
-/// # Examples
-///
-/// ```
-/// use chrono::Local;
-/// use embedded_graphics::drawable::Drawable;
-/// use embedded_graphics::mock_display::MockDisplay;
-/// use embedded_graphics::pixelcolor::Rgb888;
-/// use watchface::battery::ChargerState;
-/// use watchface::battery::StateOfCharge;
-/// use watchface::SimpleWatchfaceStyle;
-/// use watchface::Watchface;
-///
-/// let style = SimpleWatchfaceStyle::default();
-///
-/// let styled_watchface = Watchface::build()
-///      .with_time(Local::now())
-///      .with_battery(StateOfCharge::from_percentage(100))
-///      .with_charger(ChargerState::Full)
-///      .into_styled(style);
-///
-/// let mut display = MockDisplay::<Rgb888>::new();
-/// styled_watchface.draw(&mut display);
-/// ```
-#[derive(Default)]
-pub struct SimpleWatchfaceStyle {}
+fn convert_hours_to_text(hours: u8) -> &'static str {
+    match hours % 12 {
+        0 => "twaalf",
+        1 => "één",
+        2 => "twee",
+        3 => "drie",
+        4 => "vier",
+        5 => "vijf",
+        6 => "zes",
+        7 => "zeven",
+        8 => "acht",
+        9 => "negen",
+        10 => "tien",
+        11 => "elf",
+        _ => "",
+    }
+}
 
-impl<C> Drawable<C> for Styled<Watchface, SimpleWatchfaceStyle>
+fn convert_time_to_text(time: &Time) -> String<U20> {
+    let mut text = String::<U20>::new();
+
+    let rounded_time = time.round_to_quarters();
+    if rounded_time.minutes_local() == 0 {
+        write!(
+            &mut text,
+            "{}\nuur",
+            convert_hours_to_text(rounded_time.hours_local())
+        )
+        .unwrap()
+    } else if rounded_time.minutes_local() == 15 {
+        write!(
+            &mut text,
+            "kwart\nover\n{}",
+            convert_hours_to_text(rounded_time.hours_local())
+        )
+        .unwrap()
+    } else if rounded_time.minutes_local() == 30 {
+        write!(
+            &mut text,
+            "half\n{}",
+            convert_hours_to_text(rounded_time.hours_local() + 1)
+        )
+        .unwrap()
+    } else if rounded_time.minutes_local() == 45 {
+        write!(
+            &mut text,
+            "kwart\nvoor\n{}",
+            convert_hours_to_text(rounded_time.hours_local() + 1)
+        )
+        .unwrap()
+    }
+
+    text
+}
+
+#[derive(Default)]
+pub struct TextualTimeWatchfaceStyle {}
+
+impl<C> Drawable<C> for Styled<Watchface, TextualTimeWatchfaceStyle>
 where
     C: RgbColor,
 {
@@ -70,15 +97,7 @@ where
                 .background_color(C::BLACK)
                 .build();
 
-            let mut text = String::<U8>::new();
-            write!(
-                &mut text,
-                "{:02}:{:02}:{:02}",
-                time.hours_local(),
-                time.minutes_local(),
-                time.seconds_local()
-            )
-            .unwrap();
+            let text = convert_time_to_text(time);
 
             Text::new(&text, Point::new(10, 70))
                 .into_styled(time_text_style)
@@ -92,9 +111,9 @@ where
                 .build();
 
             let mut text = String::<U12>::new();
-            write!(&mut text, "batt: {:02}%", battery.percentage()).unwrap();
+            write!(&mut text, "{:02}%", battery.percentage()).unwrap();
 
-            Text::new(&text, Point::new(150, 10))
+            Text::new(&text, Point::new(10, 10))
                 .into_styled(time_text_style)
                 .draw(display)?;
         }
@@ -111,7 +130,7 @@ where
                     .background_color(C::BLACK)
                     .build();
 
-                Text::new(&text, Point::new(150, 30))
+                Text::new(&text, Point::new(10, 30))
                     .into_styled(time_text_style)
                     .draw(display)?;
             }
