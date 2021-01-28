@@ -16,10 +16,11 @@
  */
 
 use crate::battery_icon::{BatteryIconBuilder, ChargerAlignment};
+use crate::font::OverpassNumbersFont;
 use crate::styled::Styled;
 use crate::watchface_data::Watchface;
 use core::fmt::Write;
-use embedded_graphics::fonts::{Font24x32, Text};
+use embedded_graphics::fonts::Text;
 use embedded_graphics::style::TextStyleBuilder;
 use embedded_graphics::DrawTarget;
 use embedded_layout::prelude::*;
@@ -67,7 +68,7 @@ where
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
-            let time_text_style = TextStyleBuilder::new(Font24x32)
+            let time_text_style = TextStyleBuilder::new(OverpassNumbersFont {})
                 .text_color(C::WHITE)
                 .background_color(C::BLACK)
                 .build();
@@ -75,10 +76,9 @@ where
             let mut text = String::<U8>::new();
             write!(
                 &mut text,
-                "{:02}:{:02}:{:02}",
+                "{:02}:{:02}",
                 time.hours_local(),
                 time.minutes_local(),
-                time.seconds_local()
             )
             .unwrap();
 
