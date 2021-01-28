@@ -16,8 +16,9 @@
  */
 
 use crate::battery::{ChargerState, StateOfCharge};
+use core::marker::PhantomData;
 use embedded_graphics::prelude::*;
-use embedded_graphics::primitives::{Rectangle, Triangle};
+use embedded_graphics::primitives::{Polyline, Rectangle, Triangle};
 use embedded_graphics::style::PrimitiveStyleBuilder;
 
 pub enum ChargerAlignment {
@@ -41,20 +42,27 @@ impl ChargerAlignment {
     }
 }
 
-pub struct BatteryIcon {
+pub struct BatteryIcon<C> {
     position: Point,
     state_of_charge: Option<StateOfCharge>,
     charger: Option<ChargerState>,
     charger_alignment: ChargerAlignment,
+    _phantom_data: PhantomData<C>,
 }
 
-impl<C> Drawable<C> for BatteryIcon
+impl<C> Drawable for BatteryIcon<C>
 where
     C: RgbColor,
 {
-    fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
+    type Color = C;
+
+    fn draw<D>(&self, display: &mut D) -> Result<(), D::Error>
+    where
+        D: DrawTarget<Color = C>,
+    {
         if let Some(state_of_charge) = self.state_of_charge {
-            let offset = self.position + self.charger_alignment.battery_offset();
+            let mut display =
+                display.translated(self.position + self.charger_alignment.battery_offset());
 
             let border_color = if state_of_charge > StateOfCharge::from_percentage(10) {
                 C::WHITE
@@ -67,23 +75,19 @@ where
                 .stroke_color(border_color)
                 .build();
 
-            Rectangle::new(Point::new(0, 5) + offset, Point::new(14, 24) + offset)
-                .into_styled(border_style)
-                .draw(display)?;
-
-            let fill_style = PrimitiveStyleBuilder::new()
-                .fill_color(border_color)
-                .build();
-
-            Rectangle::new(Point::new(3, 0) + offset, Point::new(11, 6) + offset)
-                .into_styled(fill_style)
-                .draw(display)?;
-
-            let black_fill_style = PrimitiveStyleBuilder::new().fill_color(C::BLACK).build();
-
-            Rectangle::new(Point::new(5, 2) + offset, Point::new(9, 6) + offset)
-                .into_styled(black_fill_style)
-                .draw(display)?;
+            Polyline::new(&[
+                Point::new(1, 24),
+                Point::new(1, 6),
+                Point::new(4, 6),
+                Point::new(4, 1),
+                Point::new(10, 1),
+                Point::new(10, 6),
+                Point::new(13, 6),
+                Point::new(13, 23),
+                Point::new(2, 23),
+            ])
+            .into_styled(border_style)
+            .draw(&mut display)?;
 
             if state_of_charge > StateOfCharge::from_percentage(10) {
                 let color = if state_of_charge > StateOfCharge::from_percentage(20) {
@@ -94,33 +98,33 @@ where
 
                 let fill_style = PrimitiveStyleBuilder::new().fill_color(color).build();
 
-                Rectangle::new(Point::new(3, 18) + offset, Point::new(11, 21) + offset)
+                Rectangle::new(Point::new(3, 18), Size::new(9, 4))
                     .into_styled(fill_style)
-                    .draw(display)?;
+                    .draw(&mut display)?;
             }
 
             if state_of_charge > StateOfCharge::from_percentage(35) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
-                Rectangle::new(Point::new(3, 13) + offset, Point::new(11, 16) + offset)
+                Rectangle::new(Point::new(3, 13), Size::new(9, 4))
                     .into_styled(white_fill_style)
-                    .draw(display)?;
+                    .draw(&mut display)?;
             }
 
             if state_of_charge > StateOfCharge::from_percentage(65) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
-                Rectangle::new(Point::new(3, 8) + offset, Point::new(11, 11) + offset)
+                Rectangle::new(Point::new(3, 8), Size::new(9, 4))
                     .into_styled(white_fill_style)
-                    .draw(display)?;
+                    .draw(&mut display)?;
             }
 
             if state_of_charge > StateOfCharge::from_percentage(90) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
-                Rectangle::new(Point::new(6, 3) + offset, Point::new(8, 6) + offset)
+                Rectangle::new(Point::new(6, 3), Size::new(3, 4))
                     .into_styled(white_fill_style)
-                    .draw(display)?;
+                    .draw(&mut display)?;
             }
         }
 
@@ -160,11 +164,11 @@ where
     }
 }
 
-pub struct BatteryIconBuilder {
-    battery_icon: BatteryIcon,
+pub struct BatteryIconBuilder<C> {
+    battery_icon: BatteryIcon<C>,
 }
 
-impl BatteryIconBuilder {
+impl<C> BatteryIconBuilder<C> {
     pub fn new(position: Point) -> Self {
         Self {
             battery_icon: BatteryIcon {
@@ -172,6 +176,7 @@ impl BatteryIconBuilder {
                 state_of_charge: None,
                 charger: None,
                 charger_alignment: ChargerAlignment::Right,
+                _phantom_data: PhantomData,
             },
         }
     }
@@ -194,7 +199,7 @@ impl BatteryIconBuilder {
         self
     }
 
-    pub fn build(self) -> BatteryIcon {
+    pub fn build(self) -> BatteryIcon<C> {
         self.battery_icon
     }
 }
@@ -215,36 +220,33 @@ mod tests {
             .draw(&mut display)
             .unwrap();
 
-        assert_eq!(
-            display,
-            MockDisplay::from_pattern(&[
-                "   RRRRRRRRR   ",
-                "   RRRRRRRRR   ",
-                "   RRKKKKKRR   ",
-                "   RRKKKKKRR   ",
-                "   RRKKKKKRR   ",
-                "RRRRRKKKKKRRRRR",
-                "RRRRRKKKKKRRRRR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RR           RR",
-                "RRRRRRRRRRRRRRR",
-                "RRRRRRRRRRRRRRR",
-            ])
-        );
+        display.assert_pattern(&[
+            "   RRRRRRRRR   ",
+            "   RRRRRRRRR   ",
+            "   RR     RR   ",
+            "   RR     RR   ",
+            "   RR     RR   ",
+            "RRRRR     RRRRR",
+            "RRRRR     RRRRR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RRRRRRRRRRRRRRR",
+            "RRRRRRRRRRRRRRR",
+        ]);
     }
 
     #[test]
@@ -257,42 +259,40 @@ mod tests {
             .draw(&mut display)
             .unwrap();
 
-        assert_eq!(
-            display,
-            MockDisplay::from_pattern(&[
-                "                ",
-                "    WWWWWWWWW   ",
-                "    WWWWWWWWW   ",
-                "    WWKKKKKWW   ",
-                "    WWKWWWKWW   ",
-                "    WWKWWWKWW   ",
-                " WWWWWKWWWKWWWWW",
-                " WWWWWKWWWKWWWWW",
-                " WW           WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW           WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW           WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW WWWWWWWWW WW",
-                " WW           WW",
-                " WWWWWWWWWWWWWWW",
-                " WWWWWWWWWWWWWWW",
-            ])
-        );
+        display.assert_pattern(&[
+            "                ",
+            "    WWWWWWWWW   ",
+            "    WWWWWWWWW   ",
+            "    WW     WW   ",
+            "    WW WWW WW   ",
+            "    WW WWW WW   ",
+            " WWWWW WWW WWWWW",
+            " WWWWW WWW WWWWW",
+            " WW           WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW           WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW           WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW           WW",
+            " WWWWWWWWWWWWWWW",
+            " WWWWWWWWWWWWWWW",
+        ]);
     }
 
     #[test]
     fn charger() {
         let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+        display.set_allow_overdraw(true);
 
         BatteryIconBuilder::new(Point::new(0, 0))
             .with_charger(ChargerState::Full)
@@ -301,35 +301,32 @@ mod tests {
             .draw(&mut display)
             .unwrap();
 
-        assert_eq!(
-            display,
-            MockDisplay::from_pattern(&[
-                "                ",
-                "        G       ",
-                "        G       ",
-                "       GG       ",
-                "       GG       ",
-                "      GGG       ",
-                "      GGG       ",
-                "     GGGG       ",
-                "     GGGG       ",
-                "    GGGGG       ",
-                "    GGGGGGGGGG  ",
-                "   GGGGGGGGGGG  ",
-                "   GGGGGGGGGG   ",
-                "  GGGGGGGGGGG   ",
-                "  GGGGGGGGGG    ",
-                "       GGGGG    ",
-                "       GGGG     ",
-                "       GGGG     ",
-                "       GGG      ",
-                "       GGG      ",
-                "       GG       ",
-                "       GG       ",
-                "       G        ",
-                "       G        ",
-                "                ",
-            ])
-        );
+        display.assert_pattern(&[
+            "                ",
+            "        G       ",
+            "        G       ",
+            "       GG       ",
+            "       GG       ",
+            "      GGG       ",
+            "      GGG       ",
+            "     GGGG       ",
+            "     GGGG       ",
+            "    GGGGG       ",
+            "    GGGGGGGGGG  ",
+            "   GGGGGGGGGGG  ",
+            "   GGGGGGGGGG   ",
+            "  GGGGGGGGGGG   ",
+            "  GGGGGGGGGG    ",
+            "       GGGGG    ",
+            "       GGGG     ",
+            "       GGGG     ",
+            "       GGG      ",
+            "       GGG      ",
+            "       GG       ",
+            "       GG       ",
+            "       G        ",
+            "       G        ",
+            "                ",
+        ]);
     }
 }

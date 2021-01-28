@@ -19,10 +19,10 @@ use crate::battery_icon::BatteryIconBuilder;
 use crate::styled::Styled;
 use crate::watchface_data::Watchface;
 use core::fmt::Write;
+use core::marker::PhantomData;
 use embedded_graphics::fonts::{Font24x32, Text};
 use embedded_graphics::prelude::*;
-use embedded_graphics::style::TextStyleBuilder;
-use embedded_graphics::DrawTarget;
+use embedded_graphics::style::MonoTextStyleBuilder;
 use heapless::consts::*;
 use heapless::String;
 
@@ -55,17 +55,24 @@ use heapless::String;
 /// styled_watchface.draw(&mut display);
 /// ```
 #[derive(Default)]
-pub struct SimpleWatchfaceStyle {}
+pub struct SimpleWatchfaceStyle<C> {
+    _phantom_data: PhantomData<C>,
+}
 
-impl<C> Drawable<C> for Styled<Watchface, SimpleWatchfaceStyle>
+impl<C> Drawable for Styled<Watchface, SimpleWatchfaceStyle<C>>
 where
     C: RgbColor,
 {
-    fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
+    type Color = C;
+
+    fn draw<D>(&self, display: &mut D) -> Result<(), D::Error>
+    where
+        D: DrawTarget<Color = C>,
+    {
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
-            let time_text_style = TextStyleBuilder::new(Font24x32)
+            let time_text_style = MonoTextStyleBuilder::new(Font24x32)
                 .text_color(C::WHITE)
                 .background_color(C::BLACK)
                 .build();

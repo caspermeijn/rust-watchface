@@ -20,9 +20,10 @@ use crate::styled::Styled;
 use crate::time::Time;
 use crate::Watchface;
 use core::fmt::Write;
+use core::marker::PhantomData;
 use embedded_graphics::fonts::{Font24x32, Font8x16, Text};
 use embedded_graphics::prelude::*;
-use embedded_graphics::style::TextStyleBuilder;
+use embedded_graphics::style::MonoTextStyleBuilder;
 use heapless::consts::*;
 use heapless::String;
 
@@ -82,17 +83,24 @@ fn convert_time_to_text(time: &Time) -> String<U20> {
 }
 
 #[derive(Default)]
-pub struct TextualTimeWatchfaceStyle {}
+pub struct TextualTimeWatchfaceStyle<C> {
+    _phantom_data: PhantomData<C>,
+}
 
-impl<C> Drawable<C> for Styled<Watchface, TextualTimeWatchfaceStyle>
+impl<C> Drawable for Styled<Watchface, TextualTimeWatchfaceStyle<C>>
 where
     C: RgbColor,
 {
-    fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
+    type Color = C;
+
+    fn draw<D>(&self, display: &mut D) -> Result<(), D::Error>
+    where
+        D: DrawTarget<Color = C>,
+    {
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
-            let time_text_style = TextStyleBuilder::new(Font24x32)
+            let time_text_style = MonoTextStyleBuilder::new(Font24x32)
                 .text_color(C::WHITE)
                 .background_color(C::BLACK)
                 .build();
@@ -105,7 +113,7 @@ where
         }
 
         if let Some(battery) = &self.watchface.battery {
-            let time_text_style = TextStyleBuilder::new(Font8x16)
+            let time_text_style = MonoTextStyleBuilder::new(Font8x16)
                 .text_color(C::WHITE)
                 .background_color(C::BLACK)
                 .build();
@@ -125,7 +133,7 @@ where
                 ChargerState::Full => "Full",
             };
             if text.len() > 0 {
-                let time_text_style = TextStyleBuilder::new(Font8x16)
+                let time_text_style = MonoTextStyleBuilder::new(Font8x16)
                     .text_color(C::WHITE)
                     .background_color(C::BLACK)
                     .build();
