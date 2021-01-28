@@ -14,6 +14,7 @@ keywords = ["embedded-graphics", "watchface", "smartwatch"]
 
 [dependencies]
 embedded-graphics = "0.6.2"
+embedded-layout = "0.1.0"
 heapless = "0.5.5"
 chrono = "0.4.11"
 

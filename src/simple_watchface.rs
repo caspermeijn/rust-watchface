@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::battery_icon::BatteryIconBuilder;
+use crate::battery_icon::{BatteryIconBuilder, ChargerAlignment};
 use crate::styled::Styled;
 use crate::watchface_data::Watchface;
 use core::fmt::Write;
 use embedded_graphics::fonts::{Font24x32, Text};
-use embedded_graphics::prelude::*;
 use embedded_graphics::style::TextStyleBuilder;
 use embedded_graphics::DrawTarget;
+use embedded_layout::prelude::*;
 use heapless::consts::*;
 use heapless::String;
 
@@ -62,6 +62,8 @@ where
     C: RgbColor,
 {
     fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
+        let display_area = display.display_area();
+
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
@@ -82,7 +84,8 @@ where
 
             Text::new(&text, Point::new(10, 70))
                 .into_styled(time_text_style)
-                .draw(display)?;
+                .align_to(&display_area, horizontal::Center, vertical::Center)
+                .draw(display)?
         }
 
         if let Some(battery) = &self.watchface.battery {
@@ -90,7 +93,9 @@ where
                 BatteryIconBuilder::new(Point::new(10, 10))
                     .with_charger(*charger)
                     .with_state_of_charge(*battery)
+                    .with_charger_alignment(ChargerAlignment::Left)
                     .build()
+                    .align_to(&display_area, horizontal::Right, vertical::Top)
                     .draw(display)?;
             }
         }

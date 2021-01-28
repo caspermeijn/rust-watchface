@@ -21,8 +21,10 @@ use crate::time::Time;
 use crate::Watchface;
 use core::fmt::Write;
 use embedded_graphics::fonts::{Font24x32, Font8x16, Text};
-use embedded_graphics::prelude::*;
 use embedded_graphics::style::TextStyleBuilder;
+use embedded_graphics::DrawTarget;
+use embedded_layout::layout::linear::LinearLayout;
+use embedded_layout::prelude::*;
 use heapless::consts::*;
 use heapless::String;
 
@@ -89,6 +91,8 @@ where
     C: RgbColor,
 {
     fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
+        let display_area = display.display_area();
+
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
@@ -101,40 +105,36 @@ where
 
             Text::new(&text, Point::new(10, 70))
                 .into_styled(time_text_style)
+                .align_to(&display_area, horizontal::Center, vertical::Center)
                 .draw(display)?;
         }
 
-        if let Some(battery) = &self.watchface.battery {
-            let time_text_style = TextStyleBuilder::new(Font8x16)
-                .text_color(C::WHITE)
-                .background_color(C::BLACK)
-                .build();
+        let battery_text = if let Some(battery) = &self.watchface.battery {
+            let mut battery_text = String::<U12>::new();
+            write!(&mut battery_text, "{:02}%", battery.percentage()).unwrap();
+            battery_text
+        } else {
+            String::<U12>::new()
+        };
 
-            let mut text = String::<U12>::new();
-            write!(&mut text, "{:02}%", battery.percentage()).unwrap();
+        let charger_text = match &self.watchface.charger {
+            Some(ChargerState::Charging) => "Charging",
+            Some(ChargerState::Full) => "Full",
+            Some(ChargerState::Discharging) => "",
+            None => "",
+        };
 
-            Text::new(&text, Point::new(10, 10))
-                .into_styled(time_text_style)
-                .draw(display)?;
-        }
+        let text_style = TextStyleBuilder::new(Font8x16).text_color(C::WHITE).build();
 
-        if let Some(charger) = &self.watchface.charger {
-            let text = match charger {
-                ChargerState::Discharging => "",
-                ChargerState::Charging => "Charging",
-                ChargerState::Full => "Full",
-            };
-            if text.len() > 0 {
-                let time_text_style = TextStyleBuilder::new(Font8x16)
-                    .text_color(C::WHITE)
-                    .background_color(C::BLACK)
-                    .build();
-
-                Text::new(&text, Point::new(10, 30))
-                    .into_styled(time_text_style)
-                    .draw(display)?;
-            }
-        }
+        LinearLayout::vertical()
+            .with_alignment(horizontal::Right)
+            .add_view(
+                Text::new(battery_text.as_str(), Point::zero()).into_styled(text_style.clone()),
+            )
+            .add_view(Text::new(charger_text, Point::zero()).into_styled(text_style))
+            .arrange()
+            .align_to(&display_area, horizontal::Right, vertical::Top)
+            .draw(display)?;
 
         Ok(())
     }
