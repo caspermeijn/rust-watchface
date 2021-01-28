@@ -190,3 +190,138 @@ impl BatteryIconBuilder {
         self.battery_icon
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_graphics::mock_display::MockDisplay;
+    use embedded_graphics::pixelcolor::Rgb888;
+
+    #[test]
+    fn battery_zero_percent() {
+        let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+
+        BatteryIconBuilder::new(Point::new(0, 0))
+            .with_state_of_charge(StateOfCharge::from_percentage(0))
+            .build()
+            .draw(&mut display)
+            .unwrap();
+
+        assert_eq!(
+        display,
+        MockDisplay::from_pattern(&[
+            "   RRRRRRRRR   ",
+            "   RRRRRRRRR   ",
+            "   RRKKKKKRR   ",
+            "   RRKKKKKRR   ",
+            "   RRKKKKKRR   ",
+            "RRRRRKKKKKRRRRR",
+            "RRRRRKKKKKRRRRR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RR           RR",
+            "RRRRRRRRRRRRRRR",
+            "RRRRRRRRRRRRRRR",
+        ])
+        );
+    }
+
+    #[test]
+    fn battery_hundred_percent_with_offset() {
+        let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+
+        BatteryIconBuilder::new(Point::new(1, 1))
+            .with_state_of_charge(StateOfCharge::from_percentage(100))
+            .build()
+            .draw(&mut display)
+            .unwrap();
+
+        assert_eq!(
+        display,
+        MockDisplay::from_pattern(&[
+            "                ",
+            "    WWWWWWWWW   ",
+            "    WWWWWWWWW   ",
+            "    WWKKKKKWW   ",
+            "    WWKWWWKWW   ",
+            "    WWKWWWKWW   ",
+            " WWWWWKWWWKWWWWW",
+            " WWWWWKWWWKWWWWW",
+            " WW           WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW           WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW           WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW WWWWWWWWW WW",
+            " WW           WW",
+            " WWWWWWWWWWWWWWW",
+            " WWWWWWWWWWWWWWW",
+        ])
+        );
+    }
+
+    #[test]
+    fn charger() {
+        let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+
+        BatteryIconBuilder::new(Point::new(0, 0))
+            .with_charger(ChargerState::Full)
+            .with_charger_alignment(ChargerAlignment::Left)
+            .build()
+            .draw(&mut display)
+            .unwrap();
+
+        assert_eq!(
+        display,
+        MockDisplay::from_pattern(&[
+            "                ",
+            "        G       ",
+            "        G       ",
+            "       GG       ",
+            "       GG       ",
+            "      GGG       ",
+            "      GGG       ",
+            "     GGGG       ",
+            "     GGGG       ",
+            "    GGGGG       ",
+            "    GGGGGGGGGG  ",
+            "   GGGGGGGGGGG  ",
+            "   GGGGGGGGGG   ",
+            "  GGGGGGGGGGG   ",
+            "  GGGGGGGGGG    ",
+            "       GGGGG    ",
+            "       GGGG     ",
+            "       GGGG     ",
+            "       GGG      ",
+            "       GGG      ",
+            "       GG       ",
+            "       GG       ",
+            "       G        ",
+            "       G        ",
+            "                ",
+        ])
+        );
+    }
+}
