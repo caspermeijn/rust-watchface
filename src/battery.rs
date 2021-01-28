@@ -27,7 +27,7 @@ pub enum ChargerState {
 }
 
 /// Indicates a level of charge of a battery
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Ord, PartialOrd)]
 pub struct StateOfCharge {
     level: u8,
 }
@@ -35,6 +35,7 @@ pub struct StateOfCharge {
 impl StateOfCharge {
     /// Create an instance from a percentage (0..100)
     pub fn from_percentage(percentage: u8) -> Self {
+        // TODO: Make const
         assert!(percentage <= 100);
         let percentage = percentage as u32;
         let level = percentage * 255 / 100;
@@ -42,7 +43,7 @@ impl StateOfCharge {
     }
 
     /// Create an instance from a level (0..255)
-    pub fn from_level(level: u8) -> Self {
+    pub const fn from_level(level: u8) -> Self {
         Self { level }
     }
 

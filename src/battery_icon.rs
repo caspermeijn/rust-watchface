@@ -56,9 +56,11 @@ where
         if let Some(state_of_charge) = self.state_of_charge {
             let offset = self.position + self.charger_alignment.battery_offset();
 
-            let percentage = state_of_charge.percentage();
-
-            let border_color = if percentage > 10 { C::WHITE } else { C::RED };
+            let border_color = if state_of_charge > StateOfCharge::from_percentage(10) {
+                C::WHITE
+            } else {
+                C::RED
+            };
 
             let border_style = PrimitiveStyleBuilder::new()
                 .stroke_width(2)
@@ -83,8 +85,12 @@ where
                 .into_styled(black_fill_style)
                 .draw(display)?;
 
-            if percentage > 10 {
-                let color = if percentage > 25 { C::WHITE } else { C::RED };
+            if state_of_charge > StateOfCharge::from_percentage(10) {
+                let color = if state_of_charge > StateOfCharge::from_percentage(20) {
+                    C::WHITE
+                } else {
+                    C::RED
+                };
 
                 let fill_style = PrimitiveStyleBuilder::new().fill_color(color).build();
 
@@ -93,7 +99,7 @@ where
                     .draw(display)?;
             }
 
-            if percentage > 50 {
+            if state_of_charge > StateOfCharge::from_percentage(35) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
                 Rectangle::new(Point::new(3, 13) + offset, Point::new(11, 16) + offset)
@@ -101,7 +107,7 @@ where
                     .draw(display)?;
             }
 
-            if percentage > 75 {
+            if state_of_charge > StateOfCharge::from_percentage(65) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
                 Rectangle::new(Point::new(3, 8) + offset, Point::new(11, 11) + offset)
@@ -109,7 +115,7 @@ where
                     .draw(display)?;
             }
 
-            if percentage > 90 {
+            if state_of_charge > StateOfCharge::from_percentage(90) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
                 Rectangle::new(Point::new(6, 3) + offset, Point::new(8, 6) + offset)
@@ -190,5 +196,140 @@ impl BatteryIconBuilder {
 
     pub fn build(self) -> BatteryIcon {
         self.battery_icon
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use embedded_graphics::mock_display::MockDisplay;
+    use embedded_graphics::pixelcolor::Rgb888;
+
+    #[test]
+    fn battery_zero_percent() {
+        let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+
+        BatteryIconBuilder::new(Point::new(0, 0))
+            .with_state_of_charge(StateOfCharge::from_percentage(0))
+            .build()
+            .draw(&mut display)
+            .unwrap();
+
+        assert_eq!(
+            display,
+            MockDisplay::from_pattern(&[
+                "   RRRRRRRRR   ",
+                "   RRRRRRRRR   ",
+                "   RRKKKKKRR   ",
+                "   RRKKKKKRR   ",
+                "   RRKKKKKRR   ",
+                "RRRRRKKKKKRRRRR",
+                "RRRRRKKKKKRRRRR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RRRRRRRRRRRRRRR",
+                "RRRRRRRRRRRRRRR",
+            ])
+        );
+    }
+
+    #[test]
+    fn battery_hundred_percent_with_offset() {
+        let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+
+        BatteryIconBuilder::new(Point::new(1, 1))
+            .with_state_of_charge(StateOfCharge::from_percentage(100))
+            .build()
+            .draw(&mut display)
+            .unwrap();
+
+        assert_eq!(
+            display,
+            MockDisplay::from_pattern(&[
+                "                ",
+                "    WWWWWWWWW   ",
+                "    WWWWWWWWW   ",
+                "    WWKKKKKWW   ",
+                "    WWKWWWKWW   ",
+                "    WWKWWWKWW   ",
+                " WWWWWKWWWKWWWWW",
+                " WWWWWKWWWKWWWWW",
+                " WW           WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW           WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW           WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW           WW",
+                " WWWWWWWWWWWWWWW",
+                " WWWWWWWWWWWWWWW",
+            ])
+        );
+    }
+
+    #[test]
+    fn charger() {
+        let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+
+        BatteryIconBuilder::new(Point::new(0, 0))
+            .with_charger(ChargerState::Full)
+            .with_charger_alignment(ChargerAlignment::Left)
+            .build()
+            .draw(&mut display)
+            .unwrap();
+
+        assert_eq!(
+            display,
+            MockDisplay::from_pattern(&[
+                "                ",
+                "        G       ",
+                "        G       ",
+                "       GG       ",
+                "       GG       ",
+                "      GGG       ",
+                "      GGG       ",
+                "     GGGG       ",
+                "     GGGG       ",
+                "    GGGGG       ",
+                "    GGGGGGGGGG  ",
+                "   GGGGGGGGGGG  ",
+                "   GGGGGGGGGG   ",
+                "  GGGGGGGGGGG   ",
+                "  GGGGGGGGGG    ",
+                "       GGGGG    ",
+                "       GGGG     ",
+                "       GGGG     ",
+                "       GGG      ",
+                "       GGG      ",
+                "       GG       ",
+                "       GG       ",
+                "       G        ",
+                "       G        ",
+                "                ",
+            ])
+        );
     }
 }
