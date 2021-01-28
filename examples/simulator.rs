@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use embedded_graphics::{pixelcolor::Rgb565, prelude::*};
+use chrono::{Local, Timelike};
+use embedded_graphics::pixelcolor::Rgb565;
+use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{
     OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
 };
-
-use chrono::{Local, Timelike};
 use std::thread;
 use std::time::Duration;
 use watchface::battery::{ChargerState, StateOfCharge};

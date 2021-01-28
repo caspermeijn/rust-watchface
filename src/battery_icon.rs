@@ -56,7 +56,11 @@ where
         if let Some(state_of_charge) = self.state_of_charge {
             let offset = self.position + self.charger_alignment.battery_offset();
 
-            let border_color = if state_of_charge > StateOfCharge::from_percentage(10) { C::WHITE } else { C::RED };
+            let border_color = if state_of_charge > StateOfCharge::from_percentage(10) {
+                C::WHITE
+            } else {
+                C::RED
+            };
 
             let border_style = PrimitiveStyleBuilder::new()
                 .stroke_width(2)
@@ -82,7 +86,11 @@ where
                 .draw(display)?;
 
             if state_of_charge > StateOfCharge::from_percentage(10) {
-                let color = if state_of_charge > StateOfCharge::from_percentage(20) { C::WHITE } else { C::RED };
+                let color = if state_of_charge > StateOfCharge::from_percentage(20) {
+                    C::WHITE
+                } else {
+                    C::RED
+                };
 
                 let fill_style = PrimitiveStyleBuilder::new().fill_color(color).build();
 
@@ -208,34 +216,34 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-        display,
-        MockDisplay::from_pattern(&[
-            "   RRRRRRRRR   ",
-            "   RRRRRRRRR   ",
-            "   RRKKKKKRR   ",
-            "   RRKKKKKRR   ",
-            "   RRKKKKKRR   ",
-            "RRRRRKKKKKRRRRR",
-            "RRRRRKKKKKRRRRR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RR           RR",
-            "RRRRRRRRRRRRRRR",
-            "RRRRRRRRRRRRRRR",
-        ])
+            display,
+            MockDisplay::from_pattern(&[
+                "   RRRRRRRRR   ",
+                "   RRRRRRRRR   ",
+                "   RRKKKKKRR   ",
+                "   RRKKKKKRR   ",
+                "   RRKKKKKRR   ",
+                "RRRRRKKKKKRRRRR",
+                "RRRRRKKKKKRRRRR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RR           RR",
+                "RRRRRRRRRRRRRRR",
+                "RRRRRRRRRRRRRRR",
+            ])
         );
     }
 
@@ -250,35 +258,35 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-        display,
-        MockDisplay::from_pattern(&[
-            "                ",
-            "    WWWWWWWWW   ",
-            "    WWWWWWWWW   ",
-            "    WWKKKKKWW   ",
-            "    WWKWWWKWW   ",
-            "    WWKWWWKWW   ",
-            " WWWWWKWWWKWWWWW",
-            " WWWWWKWWWKWWWWW",
-            " WW           WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW           WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW           WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW WWWWWWWWW WW",
-            " WW           WW",
-            " WWWWWWWWWWWWWWW",
-            " WWWWWWWWWWWWWWW",
-        ])
+            display,
+            MockDisplay::from_pattern(&[
+                "                ",
+                "    WWWWWWWWW   ",
+                "    WWWWWWWWW   ",
+                "    WWKKKKKWW   ",
+                "    WWKWWWKWW   ",
+                "    WWKWWWKWW   ",
+                " WWWWWKWWWKWWWWW",
+                " WWWWWKWWWKWWWWW",
+                " WW           WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW           WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW           WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW WWWWWWWWW WW",
+                " WW           WW",
+                " WWWWWWWWWWWWWWW",
+                " WWWWWWWWWWWWWWW",
+            ])
         );
     }
 
@@ -294,34 +302,34 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-        display,
-        MockDisplay::from_pattern(&[
-            "                ",
-            "        G       ",
-            "        G       ",
-            "       GG       ",
-            "       GG       ",
-            "      GGG       ",
-            "      GGG       ",
-            "     GGGG       ",
-            "     GGGG       ",
-            "    GGGGG       ",
-            "    GGGGGGGGGG  ",
-            "   GGGGGGGGGGG  ",
-            "   GGGGGGGGGG   ",
-            "  GGGGGGGGGGG   ",
-            "  GGGGGGGGGG    ",
-            "       GGGGG    ",
-            "       GGGG     ",
-            "       GGGG     ",
-            "       GGG      ",
-            "       GGG      ",
-            "       GG       ",
-            "       GG       ",
-            "       G        ",
-            "       G        ",
-            "                ",
-        ])
+            display,
+            MockDisplay::from_pattern(&[
+                "                ",
+                "        G       ",
+                "        G       ",
+                "       GG       ",
+                "       GG       ",
+                "      GGG       ",
+                "      GGG       ",
+                "     GGGG       ",
+                "     GGGG       ",
+                "    GGGGG       ",
+                "    GGGGGGGGGG  ",
+                "   GGGGGGGGGGG  ",
+                "   GGGGGGGGGG   ",
+                "  GGGGGGGGGGG   ",
+                "  GGGGGGGGGG    ",
+                "       GGGGG    ",
+                "       GGGG     ",
+                "       GGGG     ",
+                "       GGG      ",
+                "       GGG      ",
+                "       GG       ",
+                "       GG       ",
+                "       G        ",
+                "       G        ",
+                "                ",
+            ])
         );
     }
 }
