@@ -20,6 +20,7 @@ use embedded_graphics::prelude::*;
 use embedded_graphics::primitives::{Rectangle, Triangle};
 use embedded_graphics::style::PrimitiveStyleBuilder;
 
+#[derive(Copy, Clone)]
 pub enum ChargerAlignment {
     Left,
     Right,
@@ -41,6 +42,7 @@ impl ChargerAlignment {
     }
 }
 
+#[derive(Copy, Clone)]
 pub struct BatteryIcon {
     position: Point,
     state_of_charge: Option<StateOfCharge>,
@@ -157,6 +159,34 @@ where
         }
 
         Ok(())
+    }
+}
+
+impl Transform for BatteryIcon {
+    fn translate(&self, by: Point) -> Self {
+        Self {
+            position: self.position + by,
+            ..*self
+        }
+    }
+
+    fn translate_mut(&mut self, by: Point) -> &mut Self {
+        self.position += by;
+        self
+    }
+}
+
+impl Dimensions for BatteryIcon {
+    fn top_left(&self) -> Point {
+        self.position
+    }
+
+    fn bottom_right(&self) -> Point {
+        self.position + self.size()
+    }
+
+    fn size(&self) -> Size {
+        Size::new(30, 25)
     }
 }
 
