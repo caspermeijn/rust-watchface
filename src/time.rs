@@ -15,8 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use chrono::prelude::*;
-
 /// Simple representation of time
 ///
 /// This is a simplified representation of time, so that it can also be used in applications without
@@ -113,7 +111,10 @@ impl Time {
     }
 }
 
+#[cfg(feature = "chrono")]
+use chrono::prelude::*;
 /// Create a time from a chrono DateTime
+#[cfg(feature = "chrono")]
 impl From<DateTime<Local>> for Time {
     fn from(time: DateTime<Local>) -> Self {
         Time {
