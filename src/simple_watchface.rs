@@ -88,17 +88,18 @@ where
                 .draw(display)?
         }
 
+        let mut icon_builder = BatteryIconBuilder::new(Point::new(10, 10));
         if let Some(battery) = &self.watchface.battery {
-            if let Some(charger) = &self.watchface.charger {
-                BatteryIconBuilder::new(Point::new(10, 10))
-                    .with_charger(*charger)
-                    .with_state_of_charge(*battery)
-                    .with_charger_alignment(ChargerAlignment::Left)
-                    .build()
-                    .align_to(&display_area, horizontal::Right, vertical::Top)
-                    .draw(display)?;
-            }
+            icon_builder = icon_builder.with_state_of_charge(*battery);
         }
+        if let Some(charger) = &self.watchface.charger {
+            icon_builder = icon_builder.with_charger(*charger);
+        }
+        icon_builder
+            .with_charger_alignment(ChargerAlignment::Left)
+            .build()
+            .align_to(&display_area, horizontal::Right, vertical::Top)
+            .draw(display)?;
 
         Ok(())
     }
