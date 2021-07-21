@@ -27,7 +27,7 @@ version = "0.4"
 optional = true
 
 [dev-dependencies]
-embedded-graphics-simulator = "0.2"
+embedded-graphics-simulator = "0.3"
 
 [[example]]
 name = "simulator"

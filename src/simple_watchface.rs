@@ -37,7 +37,7 @@ use heapless::String;
 ///
 /// ```
 /// use chrono::Local;
-/// use embedded_graphics::drawable::Drawable;
+/// use embedded_graphics::Drawable;
 /// use embedded_graphics::mock_display::MockDisplay;
 /// use embedded_graphics::pixelcolor::Rgb888;
 /// use watchface::battery::ChargerState;
@@ -54,6 +54,8 @@ use heapless::String;
 ///      .into_styled(style);
 ///
 /// let mut display = MockDisplay::<Rgb888>::new();
+/// display.set_allow_out_of_bounds_drawing(true);
+/// display.set_allow_overdraw(true);
 /// styled_watchface.draw(&mut display);
 /// ```
 #[derive(Default)]

@@ -76,7 +76,7 @@ where
                 .stroke_color(border_color)
                 .build();
 
-            Rectangle::with_corners(Point::new(0, 5) + offset, Point::new(14, 24) + offset)
+            Rectangle::with_corners(Point::new(1, 6) + offset, Point::new(13, 23) + offset)
                 .into_styled(border_style)
                 .draw(display)?;
 
@@ -241,6 +241,7 @@ mod tests {
     #[test]
     fn battery_zero_percent() {
         let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+        display.set_allow_overdraw(true);
 
         BatteryIconBuilder::new(Point::new(0, 0))
             .with_state_of_charge(StateOfCharge::from_percentage(0))
@@ -283,6 +284,7 @@ mod tests {
     #[test]
     fn battery_hundred_percent_with_offset() {
         let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+        display.set_allow_overdraw(true);
 
         BatteryIconBuilder::new(Point::new(1, 1))
             .with_state_of_charge(StateOfCharge::from_percentage(100))
@@ -326,6 +328,7 @@ mod tests {
     #[test]
     fn charger() {
         let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+        display.set_allow_overdraw(true);
 
         BatteryIconBuilder::new(Point::new(0, 0))
             .with_charger(ChargerState::Full)

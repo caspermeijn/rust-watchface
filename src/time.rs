@@ -21,12 +21,35 @@
 /// a full operating system or without chrono dependency.
 #[derive(Default, Eq, PartialEq, Debug, Clone, Copy)]
 pub struct Time {
-    pub hours_local: u8,
-    pub minutes_local: u8,
-    pub seconds_local: u8,
+    hours_local: u8,
+    minutes_local: u8,
+    seconds_local: u8,
 }
 
 impl Time {
+    /// Returns a time from the individual values
+    ///
+    /// # Arguments
+    /// * `hours_local` - Hours
+    /// * `minutes_local` - Minutes
+    /// * `seconds_local` - Seconds
+    ///
+    /// # Examples
+    /// ```
+    /// use watchface::time::Time;
+    /// let time = Time::from_values(23, 15, 25);
+    /// assert_eq!(time.hours_local(), 23);
+    /// assert_eq!(time.minutes_local(), 15);
+    /// assert_eq!(time.seconds_local(), 25);
+    /// ```
+    pub fn from_values(hours_local: u8, minutes_local: u8, seconds_local: u8) -> Self {
+        Time {
+            hours_local,
+            minutes_local,
+            seconds_local,
+        }
+    }
+
     /// Return a time from a unix epoch and timezone offset
     ///
     /// # Arguments
