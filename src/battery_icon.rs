@@ -16,9 +16,10 @@
  */
 
 use crate::battery::{ChargerState, StateOfCharge};
+use core::marker::PhantomData;
+
 use embedded_graphics::prelude::*;
-use embedded_graphics::primitives::{Rectangle, Triangle};
-use embedded_graphics::style::PrimitiveStyleBuilder;
+use embedded_graphics::primitives::{PrimitiveStyleBuilder, Rectangle, Triangle};
 
 #[derive(Copy, Clone)]
 pub enum ChargerAlignment {
@@ -43,18 +44,24 @@ impl ChargerAlignment {
 }
 
 #[derive(Copy, Clone)]
-pub struct BatteryIcon {
+pub struct BatteryIcon<C> {
     position: Point,
     state_of_charge: Option<StateOfCharge>,
     charger: Option<ChargerState>,
     charger_alignment: ChargerAlignment,
+    phantom_data: PhantomData<C>
 }
 
-impl<C> Drawable<C> for BatteryIcon
+impl<C> Drawable for BatteryIcon<C>
 where
     C: RgbColor,
 {
-    fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
+    type Color = C;
+
+    type Output = ();
+
+    fn draw<D: DrawTarget<Color = C>>(&self, display: &mut D) -> Result<(), <D as DrawTarget>::Error>
+    {
         if let Some(state_of_charge) = self.state_of_charge {
             let offset = self.position + self.charger_alignment.battery_offset();
 
@@ -69,7 +76,7 @@ where
                 .stroke_color(border_color)
                 .build();
 
-            Rectangle::new(Point::new(0, 5) + offset, Point::new(14, 24) + offset)
+            Rectangle::with_corners(Point::new(1, 6) + offset, Point::new(13, 23) + offset)
                 .into_styled(border_style)
                 .draw(display)?;
 
@@ -77,13 +84,13 @@ where
                 .fill_color(border_color)
                 .build();
 
-            Rectangle::new(Point::new(3, 0) + offset, Point::new(11, 6) + offset)
+            Rectangle::with_corners(Point::new(3, 0) + offset, Point::new(11, 6) + offset)
                 .into_styled(fill_style)
                 .draw(display)?;
 
             let black_fill_style = PrimitiveStyleBuilder::new().fill_color(C::BLACK).build();
 
-            Rectangle::new(Point::new(5, 2) + offset, Point::new(9, 6) + offset)
+            Rectangle::with_corners(Point::new(5, 2) + offset, Point::new(9, 6) + offset)
                 .into_styled(black_fill_style)
                 .draw(display)?;
 
@@ -96,7 +103,7 @@ where
 
                 let fill_style = PrimitiveStyleBuilder::new().fill_color(color).build();
 
-                Rectangle::new(Point::new(3, 18) + offset, Point::new(11, 21) + offset)
+                Rectangle::with_corners(Point::new(3, 18) + offset, Point::new(11, 21) + offset)
                     .into_styled(fill_style)
                     .draw(display)?;
             }
@@ -104,7 +111,7 @@ where
             if state_of_charge > StateOfCharge::from_percentage(35) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
-                Rectangle::new(Point::new(3, 13) + offset, Point::new(11, 16) + offset)
+                Rectangle::with_corners(Point::new(3, 13) + offset, Point::new(11, 16) + offset)
                     .into_styled(white_fill_style)
                     .draw(display)?;
             }
@@ -112,7 +119,7 @@ where
             if state_of_charge > StateOfCharge::from_percentage(65) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
-                Rectangle::new(Point::new(3, 8) + offset, Point::new(11, 11) + offset)
+                Rectangle::with_corners(Point::new(3, 8) + offset, Point::new(11, 11) + offset)
                     .into_styled(white_fill_style)
                     .draw(display)?;
             }
@@ -120,7 +127,7 @@ where
             if state_of_charge > StateOfCharge::from_percentage(90) {
                 let white_fill_style = PrimitiveStyleBuilder::new().fill_color(C::WHITE).build();
 
-                Rectangle::new(Point::new(6, 3) + offset, Point::new(8, 6) + offset)
+                Rectangle::with_corners(Point::new(6, 3) + offset, Point::new(8, 6) + offset)
                     .into_styled(white_fill_style)
                     .draw(display)?;
             }
@@ -162,7 +169,7 @@ where
     }
 }
 
-impl Transform for BatteryIcon {
+impl<C> Transform for BatteryIcon<C> {
     fn translate(&self, by: Point) -> Self {
         Self {
             position: self.position + by,
@@ -176,25 +183,20 @@ impl Transform for BatteryIcon {
     }
 }
 
-impl Dimensions for BatteryIcon {
-    fn top_left(&self) -> Point {
-        self.position
-    }
-
-    fn bottom_right(&self) -> Point {
-        self.position + self.size()
-    }
-
-    fn size(&self) -> Size {
-        Size::new(30, 25)
+impl<C> Dimensions for BatteryIcon<C> {
+    fn bounding_box(&self) -> Rectangle {
+        Rectangle {
+            top_left: self.position,
+            size: Size::new(30, 25),
+        }
     }
 }
 
-pub struct BatteryIconBuilder {
-    battery_icon: BatteryIcon,
+pub struct BatteryIconBuilder<C> {
+    battery_icon: BatteryIcon<C>,
 }
 
-impl BatteryIconBuilder {
+impl<C> BatteryIconBuilder<C> {
     pub fn new(position: Point) -> Self {
         Self {
             battery_icon: BatteryIcon {
@@ -202,6 +204,7 @@ impl BatteryIconBuilder {
                 state_of_charge: None,
                 charger: None,
                 charger_alignment: ChargerAlignment::Right,
+                phantom_data: PhantomData
             },
         }
     }
@@ -224,7 +227,7 @@ impl BatteryIconBuilder {
         self
     }
 
-    pub fn build(self) -> BatteryIcon {
+    pub fn build(self) -> BatteryIcon<C> {
         self.battery_icon
     }
 }
@@ -238,6 +241,7 @@ mod tests {
     #[test]
     fn battery_zero_percent() {
         let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+        display.set_allow_overdraw(true);
 
         BatteryIconBuilder::new(Point::new(0, 0))
             .with_state_of_charge(StateOfCharge::from_percentage(0))
@@ -280,6 +284,7 @@ mod tests {
     #[test]
     fn battery_hundred_percent_with_offset() {
         let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+        display.set_allow_overdraw(true);
 
         BatteryIconBuilder::new(Point::new(1, 1))
             .with_state_of_charge(StateOfCharge::from_percentage(100))
@@ -323,6 +328,7 @@ mod tests {
     #[test]
     fn charger() {
         let mut display: MockDisplay<Rgb888> = MockDisplay::new();
+        display.set_allow_overdraw(true);
 
         BatteryIconBuilder::new(Point::new(0, 0))
             .with_charger(ChargerState::Full)
