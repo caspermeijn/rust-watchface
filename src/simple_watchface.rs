@@ -16,13 +16,14 @@
  */
 
 use crate::battery_icon::{BatteryIconBuilder, ChargerAlignment};
-use crate::font::OverpassNumbersFont;
+use crate::font::OVERPASS_NUMBERS_FONT;
 use crate::styled::Styled;
 use crate::watchface_data::Watchface;
 use core::fmt::Write;
-use embedded_graphics::fonts::Text;
-use embedded_graphics::style::TextStyleBuilder;
-use embedded_graphics::DrawTarget;
+use core::marker::PhantomData;
+use embedded_graphics::{
+    draw_target::DrawTarget, mono_font::MonoTextStyle, prelude::*, text::Text, Drawable,
+};
 use embedded_layout::prelude::*;
 use heapless::consts::*;
 use heapless::String;
@@ -36,7 +37,7 @@ use heapless::String;
 ///
 /// ```
 /// use chrono::Local;
-/// use embedded_graphics::drawable::Drawable;
+/// use embedded_graphics::Drawable;
 /// use embedded_graphics::mock_display::MockDisplay;
 /// use embedded_graphics::pixelcolor::Rgb888;
 /// use watchface::battery::ChargerState;
@@ -53,25 +54,33 @@ use heapless::String;
 ///      .into_styled(style);
 ///
 /// let mut display = MockDisplay::<Rgb888>::new();
+/// display.set_allow_out_of_bounds_drawing(true);
+/// display.set_allow_overdraw(true);
 /// styled_watchface.draw(&mut display);
 /// ```
 #[derive(Default)]
-pub struct SimpleWatchfaceStyle {}
+pub struct SimpleWatchfaceStyle<C> {
+    phantom_data: PhantomData<C>
+}
 
-impl<C> Drawable<C> for Styled<Watchface, SimpleWatchfaceStyle>
+impl<C> Drawable for Styled<Watchface, SimpleWatchfaceStyle<C>>
 where
     C: RgbColor,
 {
-    fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
-        let display_area = display.display_area();
+    type Color = C;
+
+    type Output = ();
+
+    fn draw<D: DrawTarget<Color = C>>(
+        &self,
+        display: &mut D,
+    ) -> Result<(), <D as DrawTarget>::Error> {
+        let display_area = display.bounding_box();
 
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
-            let time_text_style = TextStyleBuilder::new(OverpassNumbersFont {})
-                .text_color(C::WHITE)
-                .background_color(C::BLACK)
-                .build();
+            let time_text_style = MonoTextStyle::new(&OVERPASS_NUMBERS_FONT, C::WHITE);
 
             let mut text = String::<U8>::new();
             write!(
@@ -82,10 +91,9 @@ where
             )
             .unwrap();
 
-            Text::new(&text, Point::new(10, 70))
-                .into_styled(time_text_style)
+            Text::new(&text, Point::new(10, 70), time_text_style)
                 .align_to(&display_area, horizontal::Center, vertical::Center)
-                .draw(display)?
+                .draw(display)?;
         }
 
         let mut icon_builder = BatteryIconBuilder::new(Point::new(10, 10));

@@ -15,30 +15,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-use embedded_graphics::prelude::*;
+use embedded_graphics::{
+    geometry::Size,
+    image::ImageRaw,
+    mono_font::{mapping::GlyphMapping, DecorationDimensions, MonoFont},
+};
 
 const CHARS_PER_ROW: u32 = 16;
+const CHAR_WIDTH: u32 = 40;
+const CHAR_HEIGHT: u32 = 52;
 
-#[derive(Debug, Copy, Clone)]
-pub struct OverpassNumbersFont {}
-impl Font for OverpassNumbersFont {
-    const FONT_IMAGE: &'static [u8] = include_bytes!("../data/overpass-numbers.raw");
-    const FONT_IMAGE_WIDTH: u32 = Self::CHARACTER_SIZE.width * CHARS_PER_ROW;
-    const CHARACTER_SIZE: Size = Size::new(40, 52);
-    fn char_offset(c: char) -> u32 {
-        match c {
-            '0' => 0,
-            '1' => 1,
-            '2' => 2,
-            '3' => 3,
-            '4' => 4,
-            '5' => 5,
-            '6' => 6,
-            '7' => 7,
-            '8' => 8,
-            '9' => 9,
-            ':' => 10,
-            _ => 15,
+pub const OVERPASS_NUMBERS_FONT: MonoFont = MonoFont {
+    image: ImageRaw::new_binary(
+        include_bytes!("../data/overpass-numbers.raw"),
+        CHARS_PER_ROW * CHAR_WIDTH,
+    ),
+    glyph_mapping: &ClockDigitMapping {},
+    character_size: Size::new(CHAR_WIDTH, CHAR_HEIGHT),
+    character_spacing: 0,
+    baseline: 50,
+    underline: DecorationDimensions::new(51, 1),
+    strikethrough: DecorationDimensions::new(26, 1),
+};
+
+struct ClockDigitMapping {}
+
+impl GlyphMapping for ClockDigitMapping {
+    fn index(&self, c: char) -> usize {
+        if c >= '0' || c <= '9' {
+            c as usize - '0' as usize
+        } else if c == ':' {
+            10
+        } else {
+            15
         }
     }
 }

@@ -20,9 +20,14 @@ use crate::styled::Styled;
 use crate::time::Time;
 use crate::Watchface;
 use core::fmt::Write;
-use embedded_graphics::fonts::{Font24x32, Font8x16, Text};
-use embedded_graphics::style::TextStyleBuilder;
-use embedded_graphics::DrawTarget;
+use core::marker::PhantomData;
+
+use embedded_graphics::draw_target::DrawTarget;
+use embedded_graphics::geometry::Point;
+use embedded_graphics::mono_font::{MonoTextStyleBuilder, ascii::{FONT_10X20, FONT_9X15_BOLD}};
+use embedded_graphics::pixelcolor::RgbColor;
+use embedded_graphics::text::Text;
+use embedded_graphics::Drawable;
 use embedded_layout::layout::linear::LinearLayout;
 use embedded_layout::prelude::*;
 use heapless::consts::*;
@@ -84,27 +89,33 @@ fn convert_time_to_text(time: &Time) -> String<U20> {
 }
 
 #[derive(Default)]
-pub struct TextualTimeWatchfaceStyle {}
+pub struct TextualTimeWatchfaceStyle<C> {
+    phantom_data: PhantomData<C>
+}
 
-impl<C> Drawable<C> for Styled<Watchface, TextualTimeWatchfaceStyle>
+impl<C> Drawable for Styled<Watchface, TextualTimeWatchfaceStyle<C>>
 where
     C: RgbColor,
 {
-    fn draw<D: DrawTarget<C>>(self, display: &mut D) -> Result<(), <D as DrawTarget<C>>::Error> {
-        let display_area = display.display_area();
+    type Color = C;
+
+    type Output = ();
+
+    fn draw<D: DrawTarget<Color = C>>(&self, display: &mut D) -> Result<(), <D as DrawTarget>::Error> {
+        let display_area = display.bounding_box();
 
         display.clear(C::BLACK)?;
 
         if let Some(time) = &self.watchface.time {
-            let time_text_style = TextStyleBuilder::new(Font24x32)
+            let time_text_style = MonoTextStyleBuilder::new()
+                .font(&FONT_10X20)
                 .text_color(C::WHITE)
                 .background_color(C::BLACK)
                 .build();
 
             let text = convert_time_to_text(time);
 
-            Text::new(&text, Point::new(10, 70))
-                .into_styled(time_text_style)
+            Text::new(&text, Point::new(10, 70), time_text_style)
                 .align_to(&display_area, horizontal::Center, vertical::Center)
                 .draw(display)?;
         }
@@ -124,14 +135,13 @@ where
             None => "",
         };
 
-        let text_style = TextStyleBuilder::new(Font8x16).text_color(C::WHITE).build();
+        let text_style = MonoTextStyleBuilder::new().font(&FONT_9X15_BOLD).text_color(C::WHITE).build();
 
-        LinearLayout::vertical()
-            .with_alignment(horizontal::Right)
-            .add_view(
-                Text::new(battery_text.as_str(), Point::zero()).into_styled(text_style.clone()),
+        LinearLayout::vertical(
+            Chain::new(Text::new(battery_text.as_str(), Point::zero(), text_style.clone()))
+                .append(Text::new(charger_text, Point::zero(), text_style))
             )
-            .add_view(Text::new(charger_text, Point::zero()).into_styled(text_style))
+            .with_alignment(horizontal::Right)
             .arrange()
             .align_to(&display_area, horizontal::Right, vertical::Top)
             .draw(display)?;

@@ -18,8 +18,8 @@ default = ["std"]
 std = ["chrono"]
 
 [dependencies]
-embedded-graphics = "0.6"
-embedded-layout = "0.1"
+embedded-graphics = "0.7"
+embedded-layout = "0.2"
 heapless = "0.5"
 
 [dependencies.chrono]
@@ -27,7 +27,7 @@ version = "0.4"
 optional = true
 
 [dev-dependencies]
-embedded-graphics-simulator = "0.2"
+embedded-graphics-simulator = "0.3"
 
 [[example]]
 name = "simulator"
