@@ -21,9 +21,9 @@
 /// a full operating system or without chrono dependency.
 #[derive(Default, Eq, PartialEq, Debug, Clone, Copy)]
 pub struct Time {
-    hours_local: u8,
-    minutes_local: u8,
-    seconds_local: u8,
+    pub hours_local: u8,
+    pub minutes_local: u8,
+    pub seconds_local: u8,
 }
 
 impl Time {
