@@ -18,8 +18,8 @@ default = ["std"]
 std = ["chrono"]
 
 [dependencies]
-embedded-graphics = "0.6"
-embedded-layout = "0.1"
+embedded-graphics = "0.7"
+embedded-layout = "0.2"
 heapless = "0.5"
 
 [dependencies.chrono]
