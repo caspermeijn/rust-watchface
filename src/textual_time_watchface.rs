@@ -93,7 +93,7 @@ fn convert_time_to_text(time: &Time) -> String<U20> {
 
 #[derive(Default)]
 pub struct TextualTimeWatchfaceStyle<C> {
-    phantom_data: PhantomData<C>,
+    _phantom_data: PhantomData<C>,
 }
 
 impl<C> Drawable for Styled<Watchface, TextualTimeWatchfaceStyle<C>>
