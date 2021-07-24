@@ -49,7 +49,7 @@ pub struct BatteryIcon<C> {
     state_of_charge: Option<StateOfCharge>,
     charger: Option<ChargerState>,
     charger_alignment: ChargerAlignment,
-    phantom_data: PhantomData<C>,
+    _phantom_data: PhantomData<C>,
 }
 
 impl<C> Drawable for BatteryIcon<C>
@@ -206,7 +206,7 @@ impl<C> BatteryIconBuilder<C> {
                 state_of_charge: None,
                 charger: None,
                 charger_alignment: ChargerAlignment::Right,
-                phantom_data: PhantomData,
+                _phantom_data: PhantomData,
             },
         }
     }

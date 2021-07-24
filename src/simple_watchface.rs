@@ -60,7 +60,7 @@ use heapless::String;
 /// ```
 #[derive(Default)]
 pub struct SimpleWatchfaceStyle<C> {
-    phantom_data: PhantomData<C>,
+    _phantom_data: PhantomData<C>,
 }
 
 impl<C> Drawable for Styled<Watchface, SimpleWatchfaceStyle<C>>
