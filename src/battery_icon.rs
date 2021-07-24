@@ -49,7 +49,7 @@ pub struct BatteryIcon<C> {
     state_of_charge: Option<StateOfCharge>,
     charger: Option<ChargerState>,
     charger_alignment: ChargerAlignment,
-    phantom_data: PhantomData<C>
+    phantom_data: PhantomData<C>,
 }
 
 impl<C> Drawable for BatteryIcon<C>
@@ -60,8 +60,10 @@ where
 
     type Output = ();
 
-    fn draw<D: DrawTarget<Color = C>>(&self, display: &mut D) -> Result<(), <D as DrawTarget>::Error>
-    {
+    fn draw<D: DrawTarget<Color = C>>(
+        &self,
+        display: &mut D,
+    ) -> Result<(), <D as DrawTarget>::Error> {
         if let Some(state_of_charge) = self.state_of_charge {
             let offset = self.position + self.charger_alignment.battery_offset();
 
@@ -204,7 +206,7 @@ impl<C> BatteryIconBuilder<C> {
                 state_of_charge: None,
                 charger: None,
                 charger_alignment: ChargerAlignment::Right,
-                phantom_data: PhantomData
+                phantom_data: PhantomData,
             },
         }
     }

@@ -24,7 +24,10 @@ use core::marker::PhantomData;
 
 use embedded_graphics::draw_target::DrawTarget;
 use embedded_graphics::geometry::Point;
-use embedded_graphics::mono_font::{MonoTextStyleBuilder, ascii::{FONT_10X20, FONT_9X15_BOLD}};
+use embedded_graphics::mono_font::{
+    ascii::{FONT_10X20, FONT_9X15_BOLD},
+    MonoTextStyleBuilder,
+};
 use embedded_graphics::pixelcolor::RgbColor;
 use embedded_graphics::text::Text;
 use embedded_graphics::Drawable;
@@ -90,7 +93,7 @@ fn convert_time_to_text(time: &Time) -> String<U20> {
 
 #[derive(Default)]
 pub struct TextualTimeWatchfaceStyle<C> {
-    phantom_data: PhantomData<C>
+    phantom_data: PhantomData<C>,
 }
 
 impl<C> Drawable for Styled<Watchface, TextualTimeWatchfaceStyle<C>>
@@ -101,7 +104,10 @@ where
 
     type Output = ();
 
-    fn draw<D: DrawTarget<Color = C>>(&self, display: &mut D) -> Result<(), <D as DrawTarget>::Error> {
+    fn draw<D: DrawTarget<Color = C>>(
+        &self,
+        display: &mut D,
+    ) -> Result<(), <D as DrawTarget>::Error> {
         let display_area = display.bounding_box();
 
         display.clear(C::BLACK)?;
@@ -135,16 +141,23 @@ where
             None => "",
         };
 
-        let text_style = MonoTextStyleBuilder::new().font(&FONT_9X15_BOLD).text_color(C::WHITE).build();
+        let text_style = MonoTextStyleBuilder::new()
+            .font(&FONT_9X15_BOLD)
+            .text_color(C::WHITE)
+            .build();
 
         LinearLayout::vertical(
-            Chain::new(Text::new(battery_text.as_str(), Point::zero(), text_style.clone()))
-                .append(Text::new(charger_text, Point::zero(), text_style))
-            )
-            .with_alignment(horizontal::Right)
-            .arrange()
-            .align_to(&display_area, horizontal::Right, vertical::Top)
-            .draw(display)?;
+            Chain::new(Text::new(
+                battery_text.as_str(),
+                Point::zero(),
+                text_style.clone(),
+            ))
+            .append(Text::new(charger_text, Point::zero(), text_style)),
+        )
+        .with_alignment(horizontal::Right)
+        .arrange()
+        .align_to(&display_area, horizontal::Right, vertical::Top)
+        .draw(display)?;
 
         Ok(())
     }
