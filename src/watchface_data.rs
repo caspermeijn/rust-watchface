@@ -108,7 +108,7 @@ impl WatchfaceBuilder {
     ///      .into_styled(style);
     ///
     /// let mut display = MockDisplay::<Rgb888>::new();
-    /// display.set_allow_out_of_bounds_drawing(true);
+    /// display.set_allow_out_of_bounds_drawing(true); //MockDisplay is too small for SimpleWatchfaceStyle
     /// display.set_allow_overdraw(true);
     /// watchface.draw(&mut display);
     /// ```
