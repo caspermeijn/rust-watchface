@@ -1,0 +1,16 @@
+# Copyright (C) 2021 Casper Meijn <casper@meijn.net>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+name: Conventional Commits Check
+
+on: [pull_request]
+
+jobs:
+  validate-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+      - name: Commitsar check
+        uses: aevea/commitsar@v0.20.1
