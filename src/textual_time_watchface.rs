@@ -147,12 +147,8 @@ where
             .build();
 
         LinearLayout::vertical(
-            Chain::new(Text::new(
-                battery_text.as_str(),
-                Point::zero(),
-                text_style.clone(),
-            ))
-            .append(Text::new(charger_text, Point::zero(), text_style)),
+            Chain::new(Text::new(battery_text.as_str(), Point::zero(), text_style))
+                .append(Text::new(charger_text, Point::zero(), text_style)),
         )
         .with_alignment(horizontal::Right)
         .arrange()
